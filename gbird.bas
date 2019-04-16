@@ -1,15 +1,24 @@
-SCREEN 13
+SCREEN 7
 
+TYPE TREE
+    cx AS DOUBLE
+    ch AS INTEGER
+END TYPE
+
+CONST NTREE = 6
 DIM SHARED ballx, bally, ballr, dy, gravity, gscale, gameover AS DOUBLE
 DIM SHARED thrust, tscale, dthrust, ithrust
 DIM SHARED wingup AS INTEGER
 DIM SHARED foodx, foody AS DOUBLE
 DIM SHARED eatcount%
+DIM SHARED plants(1 TO NTREE) AS TREE
+
 
 _TITLE "Gravity Bird"
 
 CALL IntroScreen
 CALL InitWorld
+CALL InitPlants
 
 GameLoop:
 IF gameover = 1 THEN
@@ -90,6 +99,22 @@ SUB DrawWorld ()
     CIRCLE (foodx, foody), 2
     LOCATE 1, 1
     PRINT "SCORE"; eatcount%
+    FOR i = 1 TO NTREE
+        LINE (plants(i).cx, 190)-(plants(i).cx, 190 - plants(i).ch)
+        py = 190 - plants(i).ch
+        pr = 1
+        WHILE py + pr <= 190
+            CIRCLE (plants(i).cx, py), pr, 250
+            PAINT (plants(i).cx, py), 250
+            py = py + pr
+            pr = pr + 2
+        WEND
+    NEXT i
+    LINE (0, 190)-(0, 400), 250
+    LINE (0, 400)-(400, 400), 250
+    LINE (400, 400)-(400, 190), 250
+    LINE (0, 190)-(400, 190), 250
+    PAINT (10, 192), 250
 END SUB
 
 
@@ -131,6 +156,8 @@ SUB UpdateWorld ()
             gameover = 1
         END IF
     END IF
+
+    CALL UpdatePlants
 END SUB
 
 
@@ -148,3 +175,25 @@ SUB ResetFood ()
     foody = 50 + (RND * 50)
     SOUND 280, 2
 END SUB
+
+
+SUB InitPlants ()
+    startx = 20
+    FOR i = 1 TO NTREE
+        plants(i).cx = startx + i * 50 + RND * 10
+        plants(i).ch = 10 + RND * 20
+    NEXT i
+END SUB
+
+
+SUB UpdatePlants ()
+    FOR i = 1 TO NTREE
+        IF plants(i).cx <= 6 THEN
+            plants(i).cx = 294 + RND * 10 + 50 * i
+        ELSE
+            plants(i).cx = plants(i).cx - 2
+        END IF
+    NEXT i
+END SUB
+
+
